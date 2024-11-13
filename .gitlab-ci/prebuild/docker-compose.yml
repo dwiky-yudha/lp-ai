@@ -1,0 +1,17 @@
+version: '3.5'
+
+services:
+  build-portal:
+    image: ${PREBUILD_HUB}/${IMAGE_NAMESPACE}/build-portal-${STAGE}:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - ${PREBUILD_HUB}/${IMAGE_NAMESPACE}/build-portal-${STAGE}:latest
+    volumes:
+      - ./../../:/source
+      - /home
+    user: 1000:1000
+    environment:
+      HOME: /home
+    network_mode: bridge

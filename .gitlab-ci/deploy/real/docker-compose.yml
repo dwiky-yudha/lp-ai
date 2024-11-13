@@ -1,0 +1,15 @@
+version: '3.5'
+
+services:
+  portal:
+    image: ${HUB}/${IMAGE_NAMESPACE}/portal-real:${VERSION:-latest}
+    deploy:
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 0s
+        order: start-first
+    ports:
+      - "8001:80"

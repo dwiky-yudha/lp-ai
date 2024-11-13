@@ -1,0 +1,24 @@
+version: '3.5'
+
+services:
+  portal:
+    image: ${HUB}/${IMAGE_NAMESPACE}/portal-devel:${VERSION:-latest}
+    deploy:
+      restart_policy:
+        condition: on-failure
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 0s
+        order: start-first
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.${STACK_NAME}.rule=HostRegexp(`${DOMAIN}`)
+        - traefik.http.services.${STACK_NAME}.loadbalancer.server.port=80
+    networks:
+      - traefik3-net
+
+networks:
+  traefik3-net:
+    external: true
+

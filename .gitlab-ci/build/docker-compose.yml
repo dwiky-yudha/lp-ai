@@ -1,0 +1,15 @@
+version: '3.5'
+
+services:
+  portal:
+    image: ${HUB}/${IMAGE_NAMESPACE}/portal-${STAGE}:${VERSION:-latest}
+    build:
+      context: ../..
+      dockerfile: .gitlab-ci/build/frontend/Dockerfile
+      cache_from:
+        - ${HUB}/${IMAGE_NAMESPACE}/portal-${STAGE}:latest
+      args:
+        - PREBUILD_HUB
+        - IMAGE_NAMESPACE
+        - STAGE
+        - DOMAIN

@@ -1,0 +1,234 @@
+variables:
+  STACK_NAME: asvri
+  IMAGE_NAMESPACE: asvri
+  PREBUILD_COMPOSE: .gitlab-ci/prebuild/docker-compose.yml
+  BASE_COMPOSE: .gitlab-ci/base/docker-compose.yml
+  BUILD_COMPOSE: .gitlab-ci/build/docker-compose.yml
+
+.deploy-template: &deploy-template
+  stage: deploy
+  tags:
+    - common
+    - shell-runner
+    - docker
+
+  after_script:
+    - |
+      if [[ -f .gitlab-ci/helper_script.sh ]]; then
+        source .gitlab-ci/helper_script.sh
+        kill_sshagent $CI_COMMIT_SHA
+      fi
+
+  environment:
+    name: $STAGE
+    url: https://$DOMAIN
+
+  resource_group: $STAGE
+
+.deploy-script: &deploy-script
+  - git reset --mixed $CI_COMMIT_SHA
+  - git checkout --
+    $PREBUILD_COMPOSE
+    .gitlab-ci/build/
+    .gitlab-ci/deploy/$STAGE/
+    .dockerignore
+
+  - curl -kso .gitlab-ci/helper_script.sh ${HELPER_SCRIPT_URL}
+  - source .gitlab-ci/helper_script.sh
+
+  # build image
+  - setup_image $BUILD_COMPOSE $VERSION
+
+  # persiapan deploy
+  - start_ssh_agent $CI_COMMIT_SHA
+  - ssh-add -t 600 <(echo "$SERVER_KEY")
+
+  - docker-compose -f $PREBUILD_COMPOSE pull --quiet
+
+  # update service
+  - VARS="HUB STACK_NAME IMAGE_NAMESPACE VERSION DOMAIN"
+  - deploy_image "$SERVER" "$VARS" $STACK_NAME .gitlab-ci/deploy/$STAGE/docker-compose.yml
+
+.trigger-template: &trigger-template
+  stage: deploy
+  tags:
+    - common
+    - shell-runner
+
+  dependencies: [ ]
+
+  variables: &variable-template
+    GIT_STRATEGY: fetch
+    GIT_CHECKOUT: "false"
+
+  script:
+    - eval "$( curl -kso - ${HELPER_SCRIPT_URL} )"
+    - auto_merge ${TARGET} ${CI_COMMIT_SHA} ${CI_COMMIT_REF_NAME} ${CI_PROJECT_ID} ${CI_PROJECT_URL} ${AUTOMERGE_TOKEN}
+
+stages:
+  - prebuild
+  - build
+  - test
+  - deploy
+
+build helper image:
+  stage: prebuild
+  tags:
+    - common
+    - shell-runner
+    - docker
+
+  only:
+    refs:
+      - demo
+      - devel
+      - real
+    changes:
+      - .gitlab-ci.yml
+      - .gitlab-ci/prebuild/**/*
+
+  variables:
+    GIT_CHECKOUT: "false"
+    GIT_STRATEGY: fetch
+
+    STAGE: $CI_COMMIT_REF_NAME
+
+  script:
+    - git reset --mixed $CI_COMMIT_SHA
+    - git checkout --
+      .gitlab-ci/prebuild/
+
+    - echo '*' > .dockerignore
+
+    - docker-compose -f $PREBUILD_COMPOSE pull --quiet --ignore-pull-failures
+    - docker-compose -f $PREBUILD_COMPOSE build
+    - docker-compose -f $PREBUILD_COMPOSE push
+
+build base image:
+  stage: prebuild
+  tags:
+    - common
+    - shell-runner
+    - docker
+
+  only:
+    refs:
+      - demo
+      - devel
+      - real
+    changes:
+      - .gitlab-ci.yml
+      - .gitlab-ci/base/**/*
+
+  variables:
+    GIT_CHECKOUT: "false"
+    GIT_STRATEGY: fetch
+
+    STAGE: $CI_COMMIT_REF_NAME
+
+  script:
+    - git reset --mixed $CI_COMMIT_SHA
+    - git checkout --
+      $BASE_COMPOSE
+      .gitlab-ci/base/
+
+    - docker-compose -f $BASE_COMPOSE pull --quiet --ignore-pull-failures
+    - docker-compose -f $BASE_COMPOSE build
+    - docker-compose -f $BASE_COMPOSE push
+
+build frontend:
+  stage: build
+  tags:
+    - common
+    - shell-runner
+    - docker
+
+  only:
+    - demo
+    - devel
+    - real
+
+  cache:
+    key: $CI_JOB_NAME-$CI_COMMIT_REF_SLUG
+    paths:
+      - node_modules/
+
+  artifacts:
+    name: $CI_JOB_NAME-$CI_COMMIT_REF_SLUG
+    paths:
+      - dist/
+
+  variables:
+    STAGE: $CI_COMMIT_REF_NAME
+
+  script:
+    - |
+      if [[ $CI_COMMIT_REF_NAME == real ]]; then
+        cp "$REAL_ENV" .env
+      else
+        cp "$DEVEL_ENV" .env
+      fi
+
+    - mkdir -p
+      $HOME/.runner-home
+
+    - docker-compose -f $PREBUILD_COMPOSE pull --quiet
+    - docker-compose -f $PREBUILD_COMPOSE run --rm
+      --user `id -u`:`id -g`
+      --volume $HOME/.runner-home:/home
+      build-portal bash -c "cd .
+      && pnpm install --frozen-lockfile
+      && pnpm build"
+
+deploy ke devel:
+  <<: *deploy-template
+  only:
+    - devel
+
+  variables:
+    GIT_CHECKOUT: "false"
+    GIT_STRATEGY: fetch
+
+    DOMAIN: $DEVEL_DOMAIN
+    HUB: $DEVEL_HUB
+    SERVER: $DEVEL_SERVER
+    SERVER_KEY: $DEVEL_SERVER_KEY
+    STAGE: $CI_COMMIT_REF_NAME
+    VERSION: $CI_COMMIT_SHORT_SHA
+
+  script:
+    # handle manual variabel tipe file karena gitlab belum setup konten file
+    - export ENV_BACKEND=$DEVEL_ENV_BACKEND
+
+    - *deploy-script
+
+deploy ke real-docker:
+  <<: *deploy-template
+  only:
+    - real
+
+  variables:
+    GIT_CHECKOUT: "false"
+    GIT_STRATEGY: fetch
+
+    DOMAIN: $DEVEL_DOMAIN
+    HUB: $REAL_HUB
+    SERVER: $REAL_SERVER
+    SERVER_KEY: $REAL_SERVER_KEY
+    STAGE: $CI_COMMIT_REF_NAME
+    VERSION: $CI_COMMIT_SHORT_SHA
+
+  script:
+    # handle manual variabel tipe file karena gitlab belum setup konten file
+    - export ENV_BACKEND=$REAL_ENV_BACKEND
+
+    - *deploy-script
+
+trigger devel:
+  <<: *trigger-template
+  only:
+    - real
+
+  variables:
+    <<: *variable-template
+    TARGET: devel

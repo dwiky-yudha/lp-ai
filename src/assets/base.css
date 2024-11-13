@@ -1,0 +1,183 @@
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--vt-c-black);
+    --color-background-soft: var(--vt-c-black-soft);
+    --color-background-mute: var(--vt-c-black-mute);
+
+    --color-border: var(--vt-c-divider-dark-2);
+    --color-border-hover: var(--vt-c-divider-dark-1);
+
+    --color-heading: var(--vt-c-text-dark-1);
+    --color-text: var(--vt-c-text-dark-2);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+* {
+  font-family: "Work Sans", sans-serif;
+  margin: 0 !important;
+}
+
+.p-menuitem-content:hover,
+.p-menuitem-content:active,
+.p-menuitem-content:focus,
+.p-menuitem-content{
+  background-color: transparent !important;
+}
+
+.p-menubar.p-menubar-mobile-active .p-menubar-root-list {
+  top: 80%;
+  right: 10px !important;
+  left: unset;
+  width: 40%;
+  color: white;
+}
+
+.grid {
+  padding: 0 10%;
+}
+
+#cara li {
+  padding-left: 3rem;
+  padding-bottom: 1rem;
+  background: url('https://cdn.siap.id/s3/ASVRI/check-mark.png') no-repeat left center;
+  background-size: 32px 32px;
+  line-height: 1.6;
+}
+
+.clipping-box {
+  width: 1000px;
+  height: 1000px;
+}
+
+.box img {
+  left: 25%;
+  object-fit: contain;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+  transform: rotate(-20deg);
+}
+
+.testt::before {
+  content: '';
+  background-image: url('https://cdn.siap.id/s3/ASVRI/left-bg-banner.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 250px;
+  z-index: 1;
+}
+
+.testt::after {
+  content: '';
+  background-image: url('https://cdn.siap.id/s3/ASVRI/right-bg-banner.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 220px;
+  height: 220px;
+  z-index: 2;
+}
+
+.analitik .p-card .p-card-body {
+  padding: 0 !important;
+}
+
+footer a {
+  color: white;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+.line-height-3-5 {
+  line-height: 1.75rem;
+}
+
+.py-custom-footer{
+  padding-top: 9rem ;
+  padding-bottom: 9rem;
+}
+
+
+
+/* =========== Responsive Mobile Kebawah=========== */
+@media (max-width:576px) {
+  .testt::before {
+    width: 150px;
+    height: 150px;
+  }
+
+  .testt::after {
+    bottom: -12px !important;
+    right: -30px;
+    top: unset;
+    width: 120px;
+    height: 120px;
+  }
+
+  .pos {
+    transform: translateY(-100px);
+  }
+}
+
+/* =========== Responsive Tablet Kebawah =========== */
+@media (max-width: 800px) {
+  .hero.min-h-screen {
+    min-height: 70vh !important;
+  }
+
+  .pos {
+    transform: translateY(-100px);
+  }
+
+  .testt::before {
+    width: 150px;
+    height: 150px;
+  }
+
+  .testt::after {
+    bottom: -14px !important;
+    right: -30px;
+    top: unset;
+    width: 150px;
+    height: 150px;
+  }
+
+  .p-menubar-root-list li a span {
+    color: black;
+  }
+}
+
+
+/* =========== Responsive Monitor Lebar =========== */
+@media (min-width: 1920px) {
+  .clipping-box {
+    width: 1300px;
+    height: 1300px;
+  }
+
+  .box img {
+    left: 25%;
+    object-fit: contain;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+    transform: rotate(-20deg);
+  }
+
+  .grid {
+    padding: 0 18%;
+  }
+}

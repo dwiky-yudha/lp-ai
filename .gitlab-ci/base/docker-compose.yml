@@ -1,0 +1,10 @@
+version: '3.5'
+
+services:
+  portal:
+    image: ${PREBUILD_HUB}/${IMAGE_NAMESPACE}/base-portal-${STAGE}:latest
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      cache_from:
+        - ${PREBUILD_HUB}/${IMAGE_NAMESPACE}/base-portal-${STAGE}:latest

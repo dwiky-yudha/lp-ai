@@ -248,7 +248,7 @@ const setActiveTab = (index) => {
               Solusi cerdas dalam mengelola pengetahuan internal menggunakan teknologi Generative AI dengan jaminan
               keamanan dan privasi data
             </h2>
-            <Button @click="onLearn" class="mt-4 md:mt-8 mb-6 px-5 w-full lg:w-auto w-full lg:w-auto"
+            <Button @click="onLearn" class="bg-red-50 mt-4 md:mt-8 mb-6 px-5 w-full lg:w-auto w-full lg:w-auto"
               label="Pelajari Lebih Lanjut" severity="warning" rounded />
             <div class="flex flex-wrap gap-4 justify-content-center lg:justify-content-start">
               <img class="w-5 md:w-4" src="https://cdn.siap.id/s3/ASVRI/google-play.png" />

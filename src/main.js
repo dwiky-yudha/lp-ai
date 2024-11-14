@@ -1,14 +1,14 @@
-import './assets/base.css'
+import './assets/base.css';
 
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
 
 import PrimeVue from 'primevue/config';
 import 'primeflex/primeflex.css'; // Import PrimeFlex
-import 'primevue/resources/themes/lara-light-blue/theme.css'
+// import 'primevue/resources/themes/lara-light-blue/theme.css';
 
-import Button from "primevue/button"
-import Card from "primevue/card"
+import Button from "primevue/button";
+import Card from "primevue/card";
 import Menubar from 'primevue/menubar';
 import Chip from 'primevue/chip';
 import Divider from 'primevue/divider';
@@ -28,6 +28,5 @@ app.component('TabView', TabView);
 app.component('TabPanel', TabPanel);
 app.component('Dialog', Dialog);
 
-app.use(PrimeVue);
-
+app.use(PrimeVue, { ripple: true }); // Opsi tambahan jika ripple diaktifkan
 app.mount('#app');

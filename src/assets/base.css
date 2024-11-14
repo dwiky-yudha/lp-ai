@@ -1,3 +1,13 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tambahkan import PrimeVue jika diperlukan */
+@import 'primevue/resources/primevue.min.css';
+@import 'primeicons/primeicons.css';
+
+
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: var(--vt-c-black);
